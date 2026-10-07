@@ -110,6 +110,8 @@ input:focus{outline:none;border-color:var(--ac);box-shadow:0 0 0 3px color-mix(i
 #rc{display:block;margin-bottom:10px;max-height:38vh;overflow:auto}}
 @media(min-width:760px) and (max-width:1099px){#list{display:block}#list .card{margin-bottom:12px}}
 @media(min-width:1100px){.layout{grid-template-columns:1fr 380px}}
+select{font:inherit;color:var(--tx);background:color-mix(in srgb,var(--bg) 70%,transparent);border:1px solid var(--bd);border-radius:8px;padding:9px 10px;width:100%;margin:2px 0 8px}
+.rule{border:1px dashed var(--bd);border-radius:10px;padding:10px;margin-bottom:8px}
 </style>
 </head>
 <body>
@@ -137,7 +139,7 @@ input:focus{outline:none;border-color:var(--ac);box-shadow:0 0 0 3px color-mix(i
 const KEY="svc-calc-v2";
 let S={discount:0,profit:false,qty:{},items:[
  {id:1,name:"บริการ A",unit:"ครั้ง",price:100,cost:40,tiers:[]},
- {id:2,name:"บริการ B",unit:"ชิ้น",price:250,cost:120,tiers:[]},
+ {id:2,name:"บริการ B",unit:"ชิ้น",price:100,cost:60,tiers:[],rules:[{dep:1,min:1,price:200}]},
  {id:3,name:"สินค้า C",unit:"กรัม",price:19,cost:8,tiers:[{from:1,fee:100},{from:16,fee:200},{from:30,fee:300},{from:40,fee:400}]}]};
 try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&Array.isArray(s.items))S=s}catch(e){}
 let editing=false,IMG={},PID=0;
@@ -154,9 +156,11 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",
 const num=v=>Math.max(parseFloat(v)||0,0);
 const Q=it=>+S.qty[it.id]||0;
 function fee(it,q){let f=0;if(q<=0)return 0;[...it.tiers].sort((a,b)=>a.from-b.from).forEach(t=>{if(q>=t.from)f=t.fee});return f}
-function calc(it){const q=Q(it),base=it.price*q,f=fee(it,q);return{q,base,f,tot:q>0?base+f:0}}
+function ep(it){for(const r of it.rules||[]){const d=+S.qty[r.dep]||0;if(r.dep!=it.id&&d>0&&d>=(r.min||0))return r.price}return it.price}
+function prTxt(it){const p=ep(it);return fmt(p)+(it.unit?" / "+it.unit:"")+(p!==it.price?"  (ปกติ "+fmt(it.price)+")":"")}
+function calc(it){const q=Q(it),base=ep(it)*q,f=fee(it,q);return{q,base,f,tot:q>0?base+f:0}}
 function ranges(it){const t=[...it.tiers].sort((a,b)=>a.from-b.from);return t.map((x,i)=>{const n=t[i+1];return (n?x.from+"–"+(n.from-1):x.from+"+")+" = "+fmt(x.fee)}).join(" · ")}
-function brk(it,c){return c.q>0&&it.tiers.length?`${esc(it.name)}: ${it.price}×${c.q} = ${fmt(c.base)} + ค่าบริการ ${fmt(c.f)}`:""}
+function brk(it,c){return c.q>0&&(it.tiers.length||ep(it)!==it.price)?`${it.name}: ${ep(it)}×${c.q} = ${fmt(c.base)}`+(it.tiers.length?` + ค่าบริการ ${fmt(c.f)}`:""):""}
 
 function render(){
   $("list").innerHTML=S.items.map(it=>editing?`
@@ -170,10 +174,13 @@ function render(){
     </div>
     <div class="mut" style="margin:6px 0">ค่าบริการตามจำนวน (ตั้งแต่จำนวน → ค่าบริการ)</div>
     ${[...it.tiers].map((t,i)=>`<div class="tr"><div><label>ตั้งแต่</label><input data-t="${i}" data-tf="from" type="number" inputmode="decimal" value="${t.from}"></div><div><label>ค่าบริการ</label><input data-t="${i}" data-tf="fee" type="number" inputmode="decimal" value="${t.fee}"></div><button class="dg" data-act="delt" data-i="${i}">✕</button></div>`).join("")}
+    <div class="mut" style="margin:12px 0 6px">ราคาตามเงื่อนไข (เปลี่ยนราคาต่อหน่วยอัตโนมัติ)</div>
+    ${(it.rules||[]).map((r,i)=>`<div class="rule"><label class="mut">ถ้าเลือกบริการ</label><select data-r="${i}" data-rf="dep">${S.items.filter(x=>x.id!==it.id).map(x=>`<option value="${x.id}"${x.id==r.dep?" selected":""}>${esc(x.name)}</option>`).join("")}</select><div class="tr"><div><label>จำนวนตั้งแต่</label><input data-r="${i}" data-rf="min" type="number" inputmode="decimal" value="${r.min}"></div><div><label>ราคาต่อหน่วยเป็น</label><input data-r="${i}" data-rf="price" type="number" inputmode="decimal" value="${r.price}"></div><button class="dg" data-act="delr" data-i="${i}">✕</button></div></div>`).join("")}
+    <button data-act="addr" style="width:100%;margin-bottom:8px">+ เพิ่มเงื่อนไขราคา</button>
     <div class="actions"><button data-act="addt">+ เพิ่มขั้น</button><button class="dg" data-act="del">ลบบริการ</button></div>
   </div>`:`
   <div class="card" data-id="${it.id}">
-    <div class="top"><div class="thumb">${thumb(it)}</div><div class="info"><div class="name">${esc(it.name)}</div><div class="price">${fmt(it.price)}${it.unit?" / "+esc(it.unit):""}</div>${it.tiers.length?`<div class="mut">${ranges(it)}</div>`:""}</div></div>
+    <div class="top"><div class="thumb">${thumb(it)}</div><div class="info"><div class="name">${esc(it.name)}</div><div class="price" data-pr></div>${it.tiers.length?`<div class="mut">${ranges(it)}</div>`:""}</div></div>
     <div class="qty"><button data-act="dec">−</button><input data-f="qty" type="number" inputmode="decimal" min="0" value="${Q(it)||""}" placeholder="0"><button data-act="inc">+</button><span class="mut">${esc(it.unit||"")}</span></div>
     <div class="brk" data-brk></div>
     <div class="sub"><span class="mut">ค่าใช้จ่าย</span><b data-sub></b></div>
@@ -190,7 +197,7 @@ function render(){
 function totals(){
   let t=0,c=0,rc="";
   S.items.forEach(it=>{const k=calc(it);t+=k.tot;c+=it.cost*k.q;if(k.tot>0)rc+=`<div class="rl"><span>${esc(it.name)} × ${k.q}</span><span>${fmt(k.tot)}</span></div>`;
-    if(!editing){const el=document.querySelector(`[data-id="${it.id}"]`);if(el){el.querySelector("[data-sub]").textContent=fmt(k.tot);el.querySelector("[data-brk]").textContent=brk(it,k)}}});
+    if(!editing){const el=document.querySelector(`[data-id="${it.id}"]`);if(el){el.querySelector("[data-sub]").textContent=fmt(k.tot);el.querySelector("[data-pr]").textContent=prTxt(it);el.querySelector("[data-brk]").textContent=brk(it,k)}}});
   const d=Math.min(num(S.discount),100),n=t*(1-d/100);
   $("rc").innerHTML=rc||'<div class="mut" style="padding:6px 0">ยังไม่มีรายการ</div>';$("total").textContent=fmt(t);$("net").textContent=fmt(n);
   $("pl").hidden=!S.profit;$("pf").textContent=fmt(n-c);
@@ -202,17 +209,20 @@ $("list").addEventListener("input",e=>{
   else if(d.f==="name"||d.f==="unit")it[d.f]=e.target.value;
   else if(d.f)it[d.f]=num(e.target.value);
   else if(d.t!==undefined)it.tiers[+d.t][d.tf]=num(e.target.value);
+  else if(d.r!==undefined){const r=it.rules[+d.r];if(d.rf==="dep")r.dep=+e.target.value;else r[d.rf]=num(e.target.value)}
   totals();save();
 });
 $("list").addEventListener("click",e=>{
   const b=e.target.closest("button");if(!b||!b.dataset.act)return;const it=item(b),a=b.dataset.act;
+  if(a==="addr"){const o=S.items.find(x=>x.id!==it.id);if(!o){alert("ต้องมีบริการอื่นอย่างน้อย 1 รายการ");return}it.rules=it.rules||[];it.rules.push({dep:o.id,min:1,price:it.price})}
+  if(a==="delr")it.rules.splice(+b.dataset.i,1);
   if(a==="pic"){PID=it.id;$("pic").click();return}
   if(a==="rmpic"){delete IMG[it.id];idel(it.id);render();return}
   if(a==="inc")S.qty[it.id]=Q(it)+1;
   if(a==="dec")S.qty[it.id]=Math.max(Q(it)-1,0);
   if(a==="addt"){const l=it.tiers[it.tiers.length-1];it.tiers.push({from:l?l.from+10:1,fee:l?l.fee:0})}
   if(a==="delt")it.tiers.splice(+b.dataset.i,1);
-  if(a==="del"){if(!confirm("ลบ \""+it.name+"\" ?"))return;S.items=S.items.filter(i=>i!==it);delete IMG[it.id];idel(it.id)}
+  if(a==="del"){if(!confirm("ลบ \""+it.name+"\" ?"))return;S.items=S.items.filter(i=>i!==it);S.items.forEach(x=>x.rules=(x.rules||[]).filter(r=>r.dep!=it.id));delete IMG[it.id];idel(it.id)}
   save();render();
 });
 $("shopIn").addEventListener("input",e=>{S.shop=e.target.value;$("shop").textContent=S.shop||"ใบคิดค่าบริการ";save()});
