@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ค่าบริการ">
+<meta name="theme-color" content="#1c3a63">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>คำนวณค่าบริการ</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f6f5f1;--card:#fff;--tx:#1d1d1b;--mut:#77756e;--ac:#0f6e56;--acx:#fff;--bd:#e2e0d8;--dg:#b3261e}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#161615;--card:#222220;--tx:#f0efe9;--mut:#9a988f;--ac:#3ec3a0;--acx:#08241c;--bd:#35342f;--dg:#ff8a80}}
+:root[data-theme="dark"]{--bg:#161615;--card:#222220;--tx:#f0efe9;--mut:#9a988f;--ac:#3ec3a0;--acx:#08241c;--bd:#35342f;--dg:#ff8a80}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Sarabun","Noto Sans Thai",sans-serif;font-size:17px}
+.wrap{max-width:720px;margin:0 auto;padding:16px 14px 40px}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+h1{font-size:21px;margin:0}
+button{font:inherit;cursor:pointer;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:10px;padding:9px 13px}
+button.pri{background:var(--ac);color:var(--acx);border-color:var(--ac)}
+button.dg{color:var(--dg)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:10px}
+.name{font-weight:600;font-size:18px}
+.price,.mut{color:var(--mut);font-size:15px}
+.price{margin:2px 0 10px}
+input{font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:9px 10px;width:100%}
+.qty{display:flex;gap:8px;align-items:center}
+.qty input{text-align:center;width:110px}
+.qty button{width:46px;padding:9px 0;font-size:19px}
+.brk{margin-top:8px;font-size:15px;color:var(--mut)}
+.sub{margin-top:8px;display:flex;justify-content:space-between;align-items:baseline}
+.sub b{font-size:19px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.grid label,.tr label{font-size:13px;color:var(--mut);display:block;margin-bottom:2px}
+.tr{display:grid;grid-template-columns:1fr 1fr 44px;gap:8px;align-items:end;margin-bottom:6px}
+.sum{position:sticky;bottom:0;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;margin-top:14px}
+.line{display:flex;justify-content:space-between;align-items:center;padding:5px 0}
+.line input{width:100px;text-align:right}
+.net{border-top:1px solid var(--bd);margin-top:6px;padding-top:10px;font-size:24px;font-weight:700;color:var(--ac)}
+.actions{display:flex;gap:8px;margin-top:10px}
+.actions button{flex:1}
+.tools{display:flex;gap:8px;margin-bottom:10px}
+.tools button{flex:1}
+body{background:radial-gradient(1200px 380px at 50% -120px,color-mix(in srgb,var(--ac) 20%,transparent),transparent),var(--bg)}
+.card{box-shadow:0 1px 2px rgba(0,0,0,.04),0 8px 22px rgba(0,0,0,.06);border-radius:20px}
+.top{display:flex;gap:14px;align-items:center;margin-bottom:12px}
+.thumb{width:84px;height:84px;flex:none;border-radius:18px;overflow:hidden;background:linear-gradient(135deg,var(--ac),color-mix(in srgb,var(--ac) 45%,#000));display:flex;align-items:center;justify-content:center;color:var(--acx);font-size:34px;font-weight:700}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.info{min-width:0}.info .price{margin:3px 0 4px;font-size:17px;color:var(--ac);font-weight:600}
+.sub b{color:var(--ac);font-size:22px}
+.sum{box-shadow:0 -8px 28px rgba(0,0,0,.12);border-radius:22px}
+.eth{display:flex;gap:10px;align-items:center;margin-bottom:12px}.eth .thumb{width:68px;height:68px;font-size:28px}
+h1::before{content:"🧮 "}
+@media(min-width:700px){.wrap{max-width:1000px}#list{display:grid;grid-template-columns:1fr 1fr;gap:12px}#list .card{margin:0}}
+
+:root{padding-top:0;--bg:#eef0f3;--card:#fff;--tx:#18202b;--mut:#5f6b7a;--ac:#1c3a63;--acx:#fff;--bd:#d7dce3;--dg:#b3261e}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f141b;--card:#18202b;--tx:#e9edf3;--mut:#8f9bab;--ac:#8db4ec;--acx:#0d1a2e;--bd:#2a3442;--dg:#ff8a80}}
+:root[data-theme="dark"]{--bg:#0f141b;--card:#18202b;--tx:#e9edf3;--mut:#8f9bab;--ac:#8db4ec;--acx:#0d1a2e;--bd:#2a3442;--dg:#ff8a80}
+body{background:var(--bg)}
+.bar{background:var(--ac);color:var(--acx);padding:calc(env(safe-area-inset-top,0px) + 14px) 18px 14px}
+.bar .in{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.bar h1{font-size:22px;margin:0}.bar h1::before{content:none}
+#dt{font-size:14px;opacity:.8;margin-top:2px}
+.bar button{background:transparent;color:var(--acx);border-color:color-mix(in srgb,var(--acx) 55%,transparent)}
+.bar button.pri{background:var(--acx);color:var(--ac)}
+.wrap{max-width:1100px}
+.card{border-radius:12px;box-shadow:none}
+.thumb{border-radius:10px;background:linear-gradient(135deg,var(--ac),color-mix(in srgb,var(--ac) 55%,#000))}
+button,input{border-radius:8px}
+.sum{border-radius:12px;box-shadow:0 -4px 18px rgba(0,0,0,.10)}
+.sh{font-weight:700;font-size:16px;padding-bottom:8px;margin-bottom:6px;border-bottom:2px solid var(--ac)}
+#rc{display:none}
+.rl{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px dashed var(--bd);font-size:15px}
+@media(min-width:900px){
+.layout{display:grid;grid-template-columns:1fr 380px;gap:16px;align-items:start}
+.sum{position:sticky;top:12px;bottom:auto;margin-top:0;box-shadow:none}
+#rc{display:block;margin-bottom:10px;max-height:38vh;overflow:auto}}
+</style>
+</head>
+<body>
+<div class="bar"><div class="in"><div><h1 id="shop"></h1><div id="dt"></div></div><button id="editBtn">แก้ไขเมนู</button></div></div>
+<div class="wrap"><div class="layout"><main>
+  <div id="list"></div>
+  <div id="editTools" hidden>
+    <div class="card"><label class="mut">ชื่อร้าน / หัวเอกสาร</label><input id="shopIn" placeholder="เช่น ชื่อร้านของคุณ"></div>
+    <button id="addBtn" class="pri" style="width:100%;margin-bottom:8px">+ เพิ่มบริการ</button>
+    <div class="tools"><button id="bak">สำรองข้อมูล</button><button id="rest">กู้คืนข้อมูล</button></div>
+    <input id="file" type="file" accept=".json,application/json" hidden>
+    <input id="pic" type="file" accept="image/*" hidden>
+  </div>
+  </main>
+  <aside class="sum">
+    <div class="sh">สรุปรายการ</div><div id="rc"></div>
+    <div class="line"><span>Total</span><b id="total">฿0</b></div>
+    <div class="line"><span>Discount (%)</span><input id="disc" type="number" inputmode="decimal" min="0" max="100" placeholder="0"></div>
+    <div class="line net"><span>ยอดสุทธิ</span><span id="net">฿0</span></div>
+    <div class="line mut" id="pl" hidden><span>กำไรโดยประมาณ</span><span id="pf"></span></div>
+    <div class="actions"><button id="eye">แสดงกำไร</button><button id="reset">ล้างจำนวน</button></div>
+  </aside>
+</div></div>
+<script>
+const KEY="svc-calc-v2";
+let S={discount:0,profit:false,qty:{},items:[
+ {id:1,name:"บริการ A",unit:"ครั้ง",price:100,cost:40,tiers:[]},
+ {id:2,name:"บริการ B",unit:"ชิ้น",price:250,cost:120,tiers:[]},
+ {id:3,name:"สินค้า C",unit:"กรัม",price:19,cost:8,tiers:[{from:1,fee:100},{from:16,fee:200},{from:30,fee:300},{from:40,fee:400}]}]};
+try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&Array.isArray(s.items))S=s}catch(e){}
+let editing=false,IMG={},PID=0;
+const idb=()=>new Promise((res,rej)=>{const r=indexedDB.open("svc-img",1);r.onupgradeneeded=()=>r.result.createObjectStore("i");r.onsuccess=()=>res(r.result);r.onerror=()=>rej()});
+const iset=async(k,v)=>{try{(await idb()).transaction("i","readwrite").objectStore("i").put(v,k)}catch(e){}};
+const idel=async k=>{try{(await idb()).transaction("i","readwrite").objectStore("i").delete(k)}catch(e){}};
+const iclr=async()=>{try{(await idb()).transaction("i","readwrite").objectStore("i").clear()}catch(e){}};
+const iall=async()=>{try{const d=await idb();return await new Promise(res=>{const o={},q=d.transaction("i").objectStore("i").openCursor();q.onsuccess=()=>{const c=q.result;if(c){o[c.key]=c.value;c.continue()}else res(o)};q.onerror=()=>res({})})}catch(e){return{}}};
+const thumb=it=>IMG[it.id]?`<img src="${IMG[it.id]}" alt="">`:esc((it.name||"?").trim().charAt(0)||"?");
+const $=id=>document.getElementById(id);
+const fmt=n=>"฿"+(Math.round(n*100)/100).toLocaleString("th-TH");
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const num=v=>Math.max(parseFloat(v)||0,0);
+const Q=it=>+S.qty[it.id]||0;
+function fee(it,q){let f=0;if(q<=0)return 0;[...it.tiers].sort((a,b)=>a.from-b.from).forEach(t=>{if(q>=t.from)f=t.fee});return f}
+function calc(it){const q=Q(it),base=it.price*q,f=fee(it,q);return{q,base,f,tot:q>0?base+f:0}}
+function ranges(it){const t=[...it.tiers].sort((a,b)=>a.from-b.from);return t.map((x,i)=>{const n=t[i+1];return (n?x.from+"–"+(n.from-1):x.from+"+")+" = "+fmt(x.fee)}).join(" · ")}
+function brk(it,c){return c.q>0&&it.tiers.length?`${esc(it.name)}: ${it.price}×${c.q} = ${fmt(c.base)} + ค่าบริการ ${fmt(c.f)}`:""}
+
+function render(){
+  $("list").innerHTML=S.items.map(it=>editing?`
+  <div class="card" data-id="${it.id}">
+    <div class="eth"><div class="thumb">${thumb(it)}</div><button data-act="pic">${IMG[it.id]?"เปลี่ยนรูป":"เลือกรูป"}</button>${IMG[it.id]?`<button class="dg" data-act="rmpic">ลบรูป</button>`:""}</div>
+    <div class="grid">
+      <div><label>ชื่อ</label><input data-f="name" value="${esc(it.name)}"></div>
+      <div><label>หน่วย (เช่น กรัม)</label><input data-f="unit" value="${esc(it.unit||"")}"></div>
+      <div><label>ราคาต่อหน่วย</label><input data-f="price" type="number" inputmode="decimal" value="${it.price}"></div>
+      <div><label>ต้นทุนต่อหน่วย</label><input data-f="cost" type="number" inputmode="decimal" value="${it.cost||0}"></div>
+    </div>
+    <div class="mut" style="margin:6px 0">ค่าบริการตามจำนวน (ตั้งแต่จำนวน → ค่าบริการ)</div>
+    ${[...it.tiers].map((t,i)=>`<div class="tr"><div><label>ตั้งแต่</label><input data-t="${i}" data-tf="from" type="number" inputmode="decimal" value="${t.from}"></div><div><label>ค่าบริการ</label><input data-t="${i}" data-tf="fee" type="number" inputmode="decimal" value="${t.fee}"></div><button class="dg" data-act="delt" data-i="${i}">✕</button></div>`).join("")}
+    <div class="actions"><button data-act="addt">+ เพิ่มขั้น</button><button class="dg" data-act="del">ลบบริการ</button></div>
+  </div>`:`
+  <div class="card" data-id="${it.id}">
+    <div class="top"><div class="thumb">${thumb(it)}</div><div class="info"><div class="name">${esc(it.name)}</div><div class="price">${fmt(it.price)}${it.unit?" / "+esc(it.unit):""}</div>${it.tiers.length?`<div class="mut">${ranges(it)}</div>`:""}</div></div>
+    <div class="qty"><button data-act="dec">−</button><input data-f="qty" type="number" inputmode="decimal" min="0" value="${Q(it)||""}" placeholder="0"><button data-act="inc">+</button><span class="mut">${esc(it.unit||"")}</span></div>
+    <div class="brk" data-brk></div>
+    <div class="sub"><span class="mut">ค่าใช้จ่าย</span><b data-sub></b></div>
+  </div>`).join("");
+  $("editTools").hidden=!editing;
+  $("shop").textContent=S.shop||"ใบคิดค่าบริการ";$("shopIn").value=S.shop||"";
+  $("dt").textContent=new Date().toLocaleDateString("th-TH",{dateStyle:"long"});
+  $("editBtn").textContent=editing?"เสร็จสิ้น":"แก้ไขเมนู";
+  $("editBtn").className=editing?"pri":"";
+  $("disc").value=S.discount||"";
+  $("eye").textContent=S.profit?"ซ่อนกำไร":"แสดงกำไร";
+  totals();
+}
+function totals(){
+  let t=0,c=0,rc="";
+  S.items.forEach(it=>{const k=calc(it);t+=k.tot;c+=it.cost*k.q;if(k.tot>0)rc+=`<div class="rl"><span>${esc(it.name)} × ${k.q}</span><span>${fmt(k.tot)}</span></div>`;
+    if(!editing){const el=document.querySelector(`[data-id="${it.id}"]`);if(el){el.querySelector("[data-sub]").textContent=fmt(k.tot);el.querySelector("[data-brk]").textContent=brk(it,k)}}});
+  const d=Math.min(num(S.discount),100),n=t*(1-d/100);
+  $("rc").innerHTML=rc||'<div class="mut" style="padding:6px 0">ยังไม่มีรายการ</div>';$("total").textContent=fmt(t);$("net").textContent=fmt(n);
+  $("pl").hidden=!S.profit;$("pf").textContent=fmt(n-c);
+}
+const item=el=>{const c=el.closest(".card");return c&&S.items.find(i=>i.id==c.dataset.id)};
+$("list").addEventListener("input",e=>{
+  const it=item(e.target);if(!it)return;const d=e.target.dataset;
+  if(d.f==="qty")S.qty[it.id]=num(e.target.value);
+  else if(d.f==="name"||d.f==="unit")it[d.f]=e.target.value;
+  else if(d.f)it[d.f]=num(e.target.value);
+  else if(d.t!==undefined)it.tiers[+d.t][d.tf]=num(e.target.value);
+  totals();save();
+});
+$("list").addEventListener("click",e=>{
+  const b=e.target.closest("button");if(!b||!b.dataset.act)return;const it=item(b),a=b.dataset.act;
+  if(a==="pic"){PID=it.id;$("pic").click();return}
+  if(a==="rmpic"){delete IMG[it.id];idel(it.id);render();return}
+  if(a==="inc")S.qty[it.id]=Q(it)+1;
+  if(a==="dec")S.qty[it.id]=Math.max(Q(it)-1,0);
+  if(a==="addt"){const l=it.tiers[it.tiers.length-1];it.tiers.push({from:l?l.from+10:1,fee:l?l.fee:0})}
+  if(a==="delt")it.tiers.splice(+b.dataset.i,1);
+  if(a==="del"){if(!confirm("ลบ \""+it.name+"\" ?"))return;S.items=S.items.filter(i=>i!==it);delete IMG[it.id];idel(it.id)}
+  save();render();
+});
+$("shopIn").addEventListener("input",e=>{S.shop=e.target.value;$("shop").textContent=S.shop||"ใบคิดค่าบริการ";save()});
+$("addBtn").onclick=()=>{S.items.push({id:Date.now(),name:"บริการใหม่",unit:"",price:0,cost:0,tiers:[]});save();render()};
+$("editBtn").onclick=()=>{editing=!editing;if(!editing)S.items.forEach(i=>i.tiers.sort((a,b)=>a.from-b.from));save();render()};
+$("disc").addEventListener("input",e=>{S.discount=num(e.target.value);totals();save()});
+$("eye").onclick=()=>{S.profit=!S.profit;save();render()};
+$("reset").onclick=()=>{S.qty={};S.discount=0;save();render()};
+$("bak").onclick=()=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify({...S,images:IMG})],{type:"application/json"}));a.download="service-calc-backup.json";document.body.appendChild(a);a.click();a.remove()};
+$("rest").onclick=()=>$("file").click();
+$("file").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const s=JSON.parse(r.result);if(!Array.isArray(s.items))throw 0;if(!confirm("แทนที่ข้อมูลปัจจุบันทั้งหมด?"))return;const im=s.images||{};delete s.images;S=s;S.qty=S.qty||{};IMG=im;iclr().then(()=>Object.keys(im).forEach(k=>iset(+k,im[k])));save();render()}catch(x){alert("ไฟล์ไม่ถูกต้อง")}};r.readAsText(f);e.target.value=""};
+if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+$("pic").onchange=e=>{const f=e.target.files[0];e.target.value="";if(!f||!PID)return;const id=PID,u=URL.createObjectURL(f),im=new Image();
+im.onload=()=>{const k=Math.min(1,480/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext("2d").drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);IMG[id]=c.toDataURL("image/jpeg",.82);iset(id,IMG[id]);render()};
+im.onerror=()=>alert("เปิดรูปนี้ไม่ได้");im.src=u};
+render();
+iall().then(o=>{IMG=o;render()});
+</script>
+</body>
+</html>
