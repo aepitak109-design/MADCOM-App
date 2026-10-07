@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="ค่าบริการ">
-<meta name="theme-color" content="#1c3a63">
+<meta name="theme-color" content="#080b14">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <title>คำนวณค่าบริการ</title>
@@ -78,6 +78,38 @@ button,input{border-radius:8px}
 .layout{display:grid;grid-template-columns:1fr 380px;gap:16px;align-items:start}
 .sum{position:sticky;top:12px;bottom:auto;margin-top:0;box-shadow:none}
 #rc{display:block;margin-bottom:10px;max-height:38vh;overflow:auto}}
+
+:root{--bg:#f3f5fa;--card:rgba(255,255,255,.85);--tx:#0f1626;--mut:#5b667d;--ac:#0891b2;--ac2:#6d28d9;--acx:#fff;--bd:#dde2ee;--dg:#c62828;--grid:rgba(15,22,38,.045)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#080b14;--card:rgba(255,255,255,.045);--tx:#e8ecf6;--mut:#8b94ab;--ac:#22d3ee;--ac2:#8b5cf6;--acx:#04121a;--bd:rgba(255,255,255,.10);--dg:#ff8a80;--grid:rgba(255,255,255,.035)}}
+:root[data-theme="dark"]{--bg:#080b14;--card:rgba(255,255,255,.045);--tx:#e8ecf6;--mut:#8b94ab;--ac:#22d3ee;--ac2:#8b5cf6;--acx:#04121a;--bd:rgba(255,255,255,.10);--dg:#ff8a80;--grid:rgba(255,255,255,.035)}
+body{background:radial-gradient(900px 420px at 90% -140px,color-mix(in srgb,var(--ac2) 26%,transparent),transparent),radial-gradient(700px 380px at 0% -100px,color-mix(in srgb,var(--ac) 18%,transparent),transparent),linear-gradient(var(--grid) 1px,transparent 1px) 0 0/32px 32px,linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/32px 32px,var(--bg);background-attachment:fixed;min-height:100vh}
+.bar{background:transparent;color:var(--tx);border-bottom:1px solid var(--bd);padding:calc(env(safe-area-inset-top,0px) + 12px) 18px 12px}
+.bar h1{font-size:20px;font-weight:700;letter-spacing:.2px}
+.bar h1::before{content:"";display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:10px;background:linear-gradient(135deg,var(--ac),var(--ac2));box-shadow:0 0 12px var(--ac)}
+#dt{font-size:13px;color:var(--mut);opacity:1;margin:2px 0 0 20px}
+.bar button{background:var(--card);color:var(--tx);border-color:var(--bd)}
+.bar button.pri,button.pri{background:var(--ac);color:var(--acx);border-color:var(--ac)}
+.card,.sum{position:relative;background:var(--card);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border:1px solid var(--bd);border-radius:16px;box-shadow:none}
+.card::before,.sum::before{content:"";position:absolute;left:16px;right:16px;top:-1px;height:1px;background:linear-gradient(90deg,transparent,var(--ac),var(--ac2),transparent);opacity:.7}
+.thumb{border-radius:14px;color:#fff;background:linear-gradient(135deg,var(--ac),var(--ac2));box-shadow:0 6px 18px color-mix(in srgb,var(--ac2) 35%,transparent)}
+.info .price{color:var(--ac);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:16px}
+.sub b,#total,#pf,.rl span:last-child{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-variant-numeric:tabular-nums}
+.sub b{color:var(--tx);font-size:22px}
+input{background:color-mix(in srgb,var(--bg) 70%,transparent)}
+input:focus{outline:none;border-color:var(--ac);box-shadow:0 0 0 3px color-mix(in srgb,var(--ac) 25%,transparent)}
+.qty input{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:18px}
+.sh{border-bottom:1px solid var(--bd);color:var(--mut);font-size:13px;font-weight:600;letter-spacing:.8px}
+.sh::before{content:"// ";color:var(--ac)}
+.net{border-top:1px solid var(--bd)}
+.net span:first-child{color:var(--tx);font-size:18px}
+.net span:last-child{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:30px;background:linear-gradient(90deg,var(--ac),var(--ac2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.rl{border-bottom:1px dashed var(--bd)}
+@media(min-width:760px){
+.layout{grid-template-columns:1fr 340px}
+.sum{position:sticky;top:14px;bottom:auto;margin-top:0}
+#rc{display:block;margin-bottom:10px;max-height:38vh;overflow:auto}}
+@media(min-width:760px) and (max-width:1099px){#list{display:block}#list .card{margin-bottom:12px}}
+@media(min-width:1100px){.layout{grid-template-columns:1fr 380px}}
 </style>
 </head>
 <body>
